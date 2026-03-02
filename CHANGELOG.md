@@ -1,3 +1,24 @@
+# [2.8.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.7.2...v2.8.0) (2026-03-02)
+
+
+### Bug Fixes
+
+* **ci:** fix broken YAML in Discord notification step ([bc3b34a](https://github.com/wyre-technology/autotask-mcp/commit/bc3b34a9e1479b6a2a8ddb5a0658378270a0fd71))
+* **ci:** move Discord notification into release workflow ([113d526](https://github.com/wyre-technology/autotask-mcp/commit/113d52638bada126ec8bfe081012870aaa2f053a))
+* **ci:** use Node 22 in release job for semantic-release v25 compatibility ([f8d96eb](https://github.com/wyre-technology/autotask-mcp/commit/f8d96eb929a87aeed702ac6192dcaeabb09020fe))
+* **deps:** upgrade semantic-release to ^25.0.0 for github plugin compatibility ([41e88f1](https://github.com/wyre-technology/autotask-mcp/commit/41e88f1651d30287a5d2a3b9ec534c0f4b606d15))
+* **docker:** drop arm64 platform to fix QEMU build failures ([038f21c](https://github.com/wyre-technology/autotask-mcp/commit/038f21cfc547e3c915db6bb13f3324702f53b44b))
+* **notes:** use sub-resource URL /Tickets/{id}/Notes for create_ticket_note ([#33](https://github.com/wyre-technology/autotask-mcp/issues/33)) ([d9a26a0](https://github.com/wyre-technology/autotask-mcp/commit/d9a26a021c34e3966b5cff6bda931f15b6372747))
+* rename duplicate step id 'version' to 'release-version' in docker job ([5e093cb](https://github.com/wyre-technology/autotask-mcp/commit/5e093cb019b5fdc457b91c67efb807ce00207cd2))
+* surface Autotask API validation errors instead of generic 500 ([#32](https://github.com/wyre-technology/autotask-mcp/issues/32)) ([b8e2453](https://github.com/wyre-technology/autotask-mcp/commit/b8e2453fb13208dcbb022c6c028c76d009c51414))
+* use stateless per-request server pattern for HTTP transport ([e8c6326](https://github.com/wyre-technology/autotask-mcp/commit/e8c6326e3bc26aa6eba773b298ae4a72336b8ba5))
+
+
+### Features
+
+* add DigitalOcean and Cloudflare deploy infrastructure and badges ([b68bad5](https://github.com/wyre-technology/autotask-mcp/commit/b68bad5b7406ea17a0de4fe16ce65d75f7cb14d0))
+* Add gateway mode for hosted MCP deployments ([14d5682](https://github.com/wyre-technology/autotask-mcp/commit/14d568223c9269de2d5e3e2eba5056351ca3e82d))
+
 ## [Unreleased]
 
 ### Fixed
