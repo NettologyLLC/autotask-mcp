@@ -1,3 +1,10 @@
+## [2.8.1](https://github.com/wyre-technology/autotask-mcp/compare/v2.8.0...v2.8.1) (2026-03-03)
+
+
+### Bug Fixes
+
+* **cache:** solve thundering herd bug resolving company mapping limits ([ffa318a](https://github.com/wyre-technology/autotask-mcp/commit/ffa318a108455df1007eef46a3810764165444c4))
+
 # [2.8.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.7.2...v2.8.0) (2026-03-02)
 
 
