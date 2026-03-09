@@ -254,6 +254,86 @@ export interface AutotaskQuote {
   [key: string]: any;
 }
 
+export interface AutotaskOpportunity {
+  id?: number;
+  companyID?: number;
+  title?: string;
+  description?: string;
+  amount?: number;
+  cost?: number;
+  probability?: number;
+  projectedCloseDate?: string;
+  status?: number;
+  stage?: number;
+  ownerResourceID?: number;
+  useQuoteTotals?: boolean;
+  createDate?: string;
+  lastActivityDate?: string;
+  [key: string]: any;
+}
+
+export interface AutotaskProduct {
+  id?: number;
+  name?: string;
+  description?: string;
+  unitPrice?: number;
+  unitCost?: number;
+  isActive?: boolean;
+  isSerialized?: boolean;
+  [key: string]: any;
+}
+
+export interface AutotaskServiceEntity {
+  id?: number;
+  name?: string;
+  description?: string;
+  unitPrice?: number;
+  unitCost?: number;
+  isActive?: boolean;
+  periodType?: number;
+  billingCodeID?: number;
+  [key: string]: any;
+}
+
+export interface AutotaskServiceBundle {
+  id?: number;
+  name?: string;
+  description?: string;
+  unitPrice?: number;
+  unitCost?: number;
+  isActive?: boolean;
+  periodType?: number;
+  billingCodeID?: number;
+  [key: string]: any;
+}
+
+export interface AutotaskQuoteItem {
+  id?: number;
+  quoteID?: number;
+  name?: string;
+  description?: string;
+  quantity?: number;
+  unitPrice?: number;
+  unitDiscount?: number;
+  unitCost?: number;
+  lineDiscount?: number;
+  percentageDiscount?: number;
+  isOptional?: boolean;
+  productID?: number;
+  serviceID?: number;
+  serviceBundleID?: number;
+  chargeID?: number;
+  laborID?: number;
+  expenseID?: number;
+  shippingID?: number;
+  quoteItemType?: number;
+  sortOrderID?: number;
+  totalEffectiveTax?: number;
+  averageDiscount?: number;
+  internalCurrencyUnitPrice?: number;
+  [key: string]: any;
+}
+
 export interface AutotaskBillingCode {
   id?: number;
   name?: string;

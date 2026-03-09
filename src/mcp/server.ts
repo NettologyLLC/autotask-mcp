@@ -32,6 +32,7 @@ export class AutotaskMcpServer {
   private logger: Logger;
   private envConfig: EnvironmentConfig | undefined;
   private httpServer?: HttpServer;
+  private lazyLoading: boolean;
 
   constructor(config: McpServerConfig, logger: Logger, envConfig?: EnvironmentConfig) {
     this.logger = logger;
@@ -40,10 +41,11 @@ export class AutotaskMcpServer {
 
     // Initialize Autotask service
     this.autotaskService = new AutotaskService(config, logger);
+    this.lazyLoading = envConfig?.lazyLoading ?? false;
 
     // Initialize handlers
     this.resourceHandler = new AutotaskResourceHandler(this.autotaskService, logger);
-    this.toolHandler = new AutotaskToolHandler(this.autotaskService, logger);
+    this.toolHandler = new AutotaskToolHandler(this.autotaskService, logger, this.lazyLoading);
 
     // Create default server (used for stdio mode)
     this.server = this.createFreshServer();
@@ -324,7 +326,7 @@ export class AutotaskMcpServer {
     // Reinitialize service with new credentials
     this.autotaskService = new AutotaskService(newConfig, this.logger);
     this.resourceHandler = new AutotaskResourceHandler(this.autotaskService, this.logger);
-    this.toolHandler = new AutotaskToolHandler(this.autotaskService, this.logger);
+    this.toolHandler = new AutotaskToolHandler(this.autotaskService, this.logger, this.lazyLoading);
     this.toolHandler.setServer(this.server);
 
     this.logger.debug('Updated Autotask credentials from gateway headers');
@@ -361,6 +363,14 @@ This server provides access to Kaseya Autotask PSA data and operations through t
 - **autotask://tickets/{id}** - Get ticket details by ID
 - **autotask://tickets** - List all tickets
 
+## Progressive Discovery (Lazy Loading):
+When LAZY_LOADING=true, only 3 meta-tools are exposed initially:
+- **autotask_list_categories** - List all available tool categories with descriptions and tool counts
+- **autotask_list_category_tools** - Get full tool schemas for a specific category
+- **autotask_execute_tool** - Execute any tool by name with arguments (used in lazy loading mode)
+
+Use autotask_list_categories to discover available tool categories, then autotask_list_category_tools to get full schemas for a category, then autotask_execute_tool to call the desired tool.
+
 ## Available Tools (39 total):
 - Companies: search, create, update
 - Contacts: search, create
@@ -370,7 +380,8 @@ This server provides access to Kaseya Autotask PSA data and operations through t
 - Resources: search
 - Notes: get/search/create for tickets, projects, companies
 - Attachments: get/search ticket attachments
-- Financial: expense reports, quotes, invoices, contracts
+- Financial: expense reports, quotes, quote items (CRUD), invoices, contracts
+- Sales: opportunities, products, services, service bundles
 - Configuration items: search
 - Tasks: search, create
 - Picklists: list queues, list ticket statuses, list ticket priorities, get field info

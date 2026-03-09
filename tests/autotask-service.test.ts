@@ -143,6 +143,44 @@ describe('AutotaskService', () => {
       await expect(service.createQuote({ name: 'Test Quote', companyID: 123 })).rejects.toThrow();
     });
 
+    test('should handle opportunity methods with proper error messages', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+
+      await expect(service.getOpportunity(123)).rejects.toThrow();
+      await expect(service.searchOpportunities()).rejects.toThrow();
+    });
+
+    test('should handle product methods with proper error messages', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+
+      await expect(service.getProduct(123)).rejects.toThrow();
+      await expect(service.searchProducts()).rejects.toThrow();
+    });
+
+    test('should handle service methods with proper error messages', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+
+      await expect(service.getService(123)).rejects.toThrow();
+      await expect(service.searchServices()).rejects.toThrow();
+    });
+
+    test('should handle service bundle methods with proper error messages', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+
+      await expect(service.getServiceBundle(123)).rejects.toThrow();
+      await expect(service.searchServiceBundles()).rejects.toThrow();
+    });
+
+    test('should handle quote item methods with proper error messages', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+
+      await expect(service.getQuoteItem(123)).rejects.toThrow();
+      await expect(service.searchQuoteItems()).rejects.toThrow();
+      await expect(service.createQuoteItem({ quoteID: 1, quantity: 5 })).rejects.toThrow();
+      await expect(service.updateQuoteItem(123, { quantity: 10 })).rejects.toThrow();
+      await expect(service.deleteQuoteItem(123)).rejects.toThrow();
+    });
+
     test('should handle unsupported entity methods with proper error messages', async () => {
       const service = new AutotaskService(mockConfig, mockLogger);
       

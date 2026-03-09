@@ -1,8 +1,8 @@
 {
   "models": {
     "main": {
-      "provider": "anthropic",
-      "modelId": "claude-sonnet-4-20250514",
+      "provider": "claude-code",
+      "modelId": "opus",
       "maxTokens": 64000,
       "temperature": 0.2
     },

@@ -31,6 +31,7 @@ export interface EnvironmentConfig {
   auth: {
     mode: AuthMode;
   };
+  lazyLoading?: boolean;
 }
 
 /**
@@ -144,7 +145,8 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     },
     auth: {
       mode: authMode
-    }
+    },
+    lazyLoading: process.env.LAZY_LOADING === 'true' || process.env.LAZY_LOADING === '1'
   };
 }
 
@@ -225,6 +227,7 @@ When AUTH_MODE=gateway, credentials are injected by the MCP Gateway:
   MCP_HTTP_HOST            - HTTP host when using http transport (default: 0.0.0.0)
   LOG_LEVEL                - Logging level: error, warn, info, debug (default: info)
   LOG_FORMAT               - Log format: simple, json (default: simple)
+  LAZY_LOADING             - Enable progressive tool discovery (default: false)
 
 Example (Local Mode):
   AUTOTASK_USERNAME=api-user@example.com

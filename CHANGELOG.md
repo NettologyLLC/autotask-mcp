@@ -1,3 +1,17 @@
+## [Unreleased]
+
+
+### Features
+
+* **quotes:** add quote builder support - create quotes with line items from cost sheets
+* **opportunities:** add autotask_get_opportunity and autotask_search_opportunities tools
+* **products:** add autotask_get_product and autotask_search_products tools
+* **services:** add autotask_get_service, autotask_search_services, autotask_get_service_bundle, autotask_search_service_bundles tools
+* **quote-items:** add full CRUD for quote items - autotask_create_quote_item, autotask_get_quote_item, autotask_search_quote_items, autotask_update_quote_item, autotask_delete_quote_item
+* **lazy-loading:** add progressive tool discovery mode (LAZY_LOADING=true) - reduces initial context from 42+ tools to 3 meta-tools (autotask_list_categories, autotask_list_category_tools, autotask_execute_tool)
+* **elicitation:** add MCP elicitation for quote builder - company lookup, opportunity selection, service/product selection
+* **router:** add autotask_router meta-tool for intent-based tool routing with parameter extraction
+
 ## [2.10.4](https://github.com/wyre-technology/autotask-mcp/compare/v2.10.3...v2.10.4) (2026-03-09)
 
 

@@ -951,6 +951,336 @@ export const TOOL_DEFINITIONS: McpTool[] = [
     }
   },
 
+  // Opportunity tools
+  {
+    name: 'autotask_get_opportunity',
+    description: 'Get a specific opportunity by ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        opportunityId: {
+          type: 'number',
+          description: 'The opportunity ID to retrieve'
+        }
+      },
+      required: ['opportunityId']
+    }
+  },
+  {
+    name: 'autotask_search_opportunities',
+    description: 'Search for opportunities with optional filters',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        companyId: {
+          type: 'number',
+          description: 'Filter by company ID'
+        },
+        searchTerm: {
+          type: 'string',
+          description: 'Search term for opportunity title'
+        },
+        status: {
+          type: 'number',
+          description: 'Filter by status'
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Number of results to return (default: 25, max: 100)',
+          minimum: 1,
+          maximum: 100
+        }
+      },
+      required: []
+    }
+  },
+
+  // Product tools
+  {
+    name: 'autotask_get_product',
+    description: 'Get a specific product by ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        productId: {
+          type: 'number',
+          description: 'The product ID to retrieve'
+        }
+      },
+      required: ['productId']
+    }
+  },
+  {
+    name: 'autotask_search_products',
+    description: 'Search for products with optional filters',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        searchTerm: {
+          type: 'string',
+          description: 'Search term for product name'
+        },
+        isActive: {
+          type: 'boolean',
+          description: 'Filter by active status'
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Number of results to return (default: 25, max: 100)',
+          minimum: 1,
+          maximum: 100
+        }
+      },
+      required: []
+    }
+  },
+
+  // Service tools
+  {
+    name: 'autotask_get_service',
+    description: 'Get a specific service by ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        serviceId: {
+          type: 'number',
+          description: 'The service ID to retrieve'
+        }
+      },
+      required: ['serviceId']
+    }
+  },
+  {
+    name: 'autotask_search_services',
+    description: 'Search for services with optional filters',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        searchTerm: {
+          type: 'string',
+          description: 'Search term for service name'
+        },
+        isActive: {
+          type: 'boolean',
+          description: 'Filter by active status'
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Number of results to return (default: 25, max: 100)',
+          minimum: 1,
+          maximum: 100
+        }
+      },
+      required: []
+    }
+  },
+
+  // Service Bundle tools
+  {
+    name: 'autotask_get_service_bundle',
+    description: 'Get a specific service bundle by ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        serviceBundleId: {
+          type: 'number',
+          description: 'The service bundle ID to retrieve'
+        }
+      },
+      required: ['serviceBundleId']
+    }
+  },
+  {
+    name: 'autotask_search_service_bundles',
+    description: 'Search for service bundles with optional filters',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        searchTerm: {
+          type: 'string',
+          description: 'Search term for service bundle name'
+        },
+        isActive: {
+          type: 'boolean',
+          description: 'Filter by active status'
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Number of results to return (default: 25, max: 100)',
+          minimum: 1,
+          maximum: 100
+        }
+      },
+      required: []
+    }
+  },
+
+  // Quote Item tools
+  {
+    name: 'autotask_get_quote_item',
+    description: 'Get a specific quote item by ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        quoteItemId: {
+          type: 'number',
+          description: 'The quote item ID to retrieve'
+        }
+      },
+      required: ['quoteItemId']
+    }
+  },
+  {
+    name: 'autotask_search_quote_items',
+    description: 'Search for quote items, typically filtered by quote ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        quoteId: {
+          type: 'number',
+          description: 'Filter by quote ID (recommended)'
+        },
+        searchTerm: {
+          type: 'string',
+          description: 'Search term for quote item name'
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Number of results to return (default: 50, max: 100)',
+          minimum: 1,
+          maximum: 100
+        }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'autotask_create_quote_item',
+    description: 'Create a line item on a quote. Set exactly ONE item reference (serviceID, productID, or serviceBundleID). Required: quoteId, quantity. Defaults: unitDiscount=0, lineDiscount=0, percentageDiscount=0, isOptional=false.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        quoteId: {
+          type: 'number',
+          description: 'The quote ID to add this item to'
+        },
+        name: {
+          type: 'string',
+          description: 'Item name (auto-populated for service/product types)'
+        },
+        description: {
+          type: 'string',
+          description: 'Item description'
+        },
+        quantity: {
+          type: 'number',
+          description: 'Quantity of the item'
+        },
+        unitPrice: {
+          type: 'number',
+          description: 'Unit price for the item'
+        },
+        unitCost: {
+          type: 'number',
+          description: 'Unit cost for the item'
+        },
+        unitDiscount: {
+          type: 'number',
+          description: 'Per-unit discount amount (default: 0)'
+        },
+        lineDiscount: {
+          type: 'number',
+          description: 'Line-level discount amount (default: 0)'
+        },
+        percentageDiscount: {
+          type: 'number',
+          description: 'Percentage discount (default: 0)'
+        },
+        isOptional: {
+          type: 'boolean',
+          description: 'Whether this is an optional line item (default: false)'
+        },
+        serviceID: {
+          type: 'number',
+          description: 'Service ID to link (mutually exclusive with productID/serviceBundleID)'
+        },
+        productID: {
+          type: 'number',
+          description: 'Product ID to link (mutually exclusive with serviceID/serviceBundleID)'
+        },
+        serviceBundleID: {
+          type: 'number',
+          description: 'Service Bundle ID to link (mutually exclusive with serviceID/productID)'
+        },
+        sortOrderID: {
+          type: 'number',
+          description: 'Sort order for display'
+        },
+        quoteItemType: {
+          type: 'number',
+          description: 'Quote item type (auto-determined if omitted): 1=Product, 2=Cost, 3=Labor, 4=Expense, 6=Shipping, 11=Service, 12=ServiceBundle'
+        }
+      },
+      required: ['quoteId', 'quantity']
+    }
+  },
+  {
+    name: 'autotask_update_quote_item',
+    description: 'Update an existing quote item (quantity, price, etc.)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        quoteItemId: {
+          type: 'number',
+          description: 'The quote item ID to update'
+        },
+        quantity: {
+          type: 'number',
+          description: 'Updated quantity'
+        },
+        unitPrice: {
+          type: 'number',
+          description: 'Updated unit price'
+        },
+        unitDiscount: {
+          type: 'number',
+          description: 'Updated per-unit discount'
+        },
+        lineDiscount: {
+          type: 'number',
+          description: 'Updated line discount'
+        },
+        percentageDiscount: {
+          type: 'number',
+          description: 'Updated percentage discount'
+        },
+        isOptional: {
+          type: 'boolean',
+          description: 'Updated optional status'
+        },
+        sortOrderID: {
+          type: 'number',
+          description: 'Updated sort order'
+        }
+      },
+      required: ['quoteItemId']
+    }
+  },
+  {
+    name: 'autotask_delete_quote_item',
+    description: 'Delete a quote item (line item) from a quote',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        quoteItemId: {
+          type: 'number',
+          description: 'The quote item ID to delete'
+        }
+      },
+      required: ['quoteItemId']
+    }
+  },
+
   // Configuration Item tools
   {
     name: 'autotask_search_configuration_items',
@@ -1335,5 +1665,109 @@ export const TOOL_DEFINITIONS: McpTool[] = [
       },
       required: []
     }
+  },
+
+  // === Meta-tools for progressive discovery (lazy loading mode) ===
+  {
+    name: 'autotask_list_categories',
+    description: 'List available tool categories. Use this to discover what types of Autotask operations are available before loading specific tools.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: []
+    }
+  },
+  {
+    name: 'autotask_list_category_tools',
+    description: 'List tools in a specific category with full schemas. Use after autotask_list_categories to see available tools and their parameters.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        category: {
+          type: 'string',
+          description: 'Category name from autotask_list_categories (e.g., "tickets", "financial", "companies")'
+        }
+      },
+      required: ['category']
+    }
+  },
+  {
+    name: 'autotask_execute_tool',
+    description: 'Execute any Autotask tool by name. Use after discovering tools via autotask_list_category_tools.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        toolName: {
+          type: 'string',
+          description: 'The tool name to execute (e.g., "autotask_search_tickets")'
+        },
+        arguments: {
+          type: 'object',
+          description: 'Arguments to pass to the tool'
+        }
+      },
+      required: ['toolName']
+    }
+  },
+  {
+    name: 'autotask_router',
+    description: 'Intelligent tool router - describe what you want to do and get the right tool suggestion with pre-filled parameters. Use this when unsure which tool to call.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        intent: {
+          type: 'string',
+          description: 'Natural language description of what you want to do (e.g., "find tickets for Acme Corp", "log 2 hours on ticket 12345", "create a quote for client")'
+        }
+      },
+      required: ['intent']
+    }
   }
 ];
+
+export const TOOL_CATEGORIES: Record<string, { description: string; tools: string[] }> = {
+  utility: {
+    description: 'Connection testing and field/picklist discovery',
+    tools: ['autotask_test_connection', 'autotask_list_queues', 'autotask_list_ticket_statuses', 'autotask_list_ticket_priorities', 'autotask_get_field_info']
+  },
+  companies: {
+    description: 'Search, create, and update companies',
+    tools: ['autotask_search_companies', 'autotask_create_company', 'autotask_update_company']
+  },
+  contacts: {
+    description: 'Search and create contacts',
+    tools: ['autotask_search_contacts', 'autotask_create_contact']
+  },
+  tickets: {
+    description: 'Search, create, update tickets and manage ticket notes and attachments',
+    tools: ['autotask_search_tickets', 'autotask_get_ticket_details', 'autotask_create_ticket', 'autotask_update_ticket', 'autotask_get_ticket_note', 'autotask_search_ticket_notes', 'autotask_create_ticket_note', 'autotask_get_ticket_attachment', 'autotask_search_ticket_attachments']
+  },
+  projects: {
+    description: 'Search and create projects, tasks, and project notes',
+    tools: ['autotask_search_projects', 'autotask_create_project', 'autotask_search_tasks', 'autotask_create_task', 'autotask_get_project_note', 'autotask_search_project_notes', 'autotask_create_project_note']
+  },
+  time_and_billing: {
+    description: 'Time entries, billing items, and expense management',
+    tools: ['autotask_create_time_entry', 'autotask_search_time_entries', 'autotask_search_billing_items', 'autotask_get_billing_item', 'autotask_search_billing_item_approval_levels', 'autotask_get_expense_report', 'autotask_search_expense_reports', 'autotask_create_expense_report', 'autotask_create_expense_item']
+  },
+  financial: {
+    description: 'Quotes, quote items, opportunities, invoices, and contracts',
+    tools: ['autotask_get_quote', 'autotask_search_quotes', 'autotask_create_quote', 'autotask_get_quote_item', 'autotask_search_quote_items', 'autotask_create_quote_item', 'autotask_update_quote_item', 'autotask_delete_quote_item', 'autotask_get_opportunity', 'autotask_search_opportunities', 'autotask_search_invoices', 'autotask_search_contracts']
+  },
+  products_and_services: {
+    description: 'Products, services, and service bundles catalog',
+    tools: ['autotask_get_product', 'autotask_search_products', 'autotask_get_service', 'autotask_search_services', 'autotask_get_service_bundle', 'autotask_search_service_bundles']
+  },
+  resources: {
+    description: 'Search for Autotask resources (technicians/staff)',
+    tools: ['autotask_search_resources']
+  },
+  configuration_items: {
+    description: 'Search configuration items (assets/devices)',
+    tools: ['autotask_search_configuration_items']
+  },
+  company_notes: {
+    description: 'Get, search, and create company notes',
+    tools: ['autotask_get_company_note', 'autotask_search_company_notes', 'autotask_create_company_note']
+  }
+};
