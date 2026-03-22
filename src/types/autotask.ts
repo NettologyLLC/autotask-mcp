@@ -361,6 +361,37 @@ export interface AutotaskTicketCharge {
   [key: string]: any;
 }
 
+export interface AutotaskServiceCall {
+  id?: number;
+  description?: string;
+  status?: number;
+  startDateTime?: string;
+  endDateTime?: string;
+  duration?: number;
+  companyID?: number;
+  companyLocationID?: number;
+  complete?: boolean;
+  createDate?: string;
+  lastModifiedDateTime?: string;
+  creatorResourceID?: number;
+  [key: string]: any;
+}
+
+export interface AutotaskServiceCallTicket {
+  id?: number;
+  serviceCallID?: number;
+  ticketID?: number;
+  [key: string]: any;
+}
+
+export interface AutotaskServiceCallTicketResource {
+  id?: number;
+  serviceCallTicketID?: number;
+  resourceID?: number;
+  roleID?: number;
+  [key: string]: any;
+}
+
 export interface AutotaskBillingCode {
   id?: number;
   name?: string;

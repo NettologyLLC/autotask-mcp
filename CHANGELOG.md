@@ -1,3 +1,21 @@
+# [2.14.0] - 2026-03-22
+
+### Added
+
+- Service Calls support ([#38](https://github.com/wyre-technology/autotask-mcp/issues/38)):
+  - `autotask_get_service_call` — Get a service call by ID
+  - `autotask_search_service_calls` — Search service calls by company, status, or date range
+  - `autotask_create_service_call` — Create a new service call
+  - `autotask_update_service_call` — Update service call details, status, or times (set `complete: true` to close)
+  - `autotask_delete_service_call` — Delete a service call
+  - `autotask_search_service_call_tickets` — Find tickets linked to a service call
+  - `autotask_create_service_call_ticket` — Link a ticket to a service call
+  - `autotask_delete_service_call_ticket` — Remove a ticket from a service call
+  - `autotask_search_service_call_ticket_resources` — Find technicians assigned to a service call ticket
+  - `autotask_create_service_call_ticket_resource` — Assign a technician to a service call ticket
+  - `autotask_delete_service_call_ticket_resource` — Remove a technician from a service call ticket
+- New `service_calls` tool category for lazy-loading mode
+
 # [2.13.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.12.1...v2.13.0) (2026-03-20)
 
 
