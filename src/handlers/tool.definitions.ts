@@ -643,9 +643,13 @@ export const TOOL_DEFINITIONS: McpTool[] = [
         estimatedHours: {
           type: 'number',
           description: 'Estimated hours for the project'
+        },
+        projectType: {
+          type: 'number',
+          description: 'Project type (2=Proposal, 3=Template, 4=Internal, 5=Client, 8=Baseline). Required.'
         }
       },
-      required: ['companyID', 'projectName', 'status']
+      required: ['companyID', 'projectName', 'status', 'projectType']
     }
   },
 
@@ -814,6 +818,14 @@ export const TOOL_DEFINITIONS: McpTool[] = [
         noteType: {
           type: 'number',
           description: 'Note type (1=General, 2=Appointment, 3=Task, 4=Ticket, 5=Project, 6=Opportunity)'
+        },
+        publish: {
+          type: 'number',
+          description: 'Publish visibility (1=All Autotask Users, 2=Internal Project Team, 3=Project Team). Defaults to 1.'
+        },
+        isAnnouncement: {
+          type: 'boolean',
+          description: 'Whether this note is an announcement. Defaults to false.'
         }
       },
       required: ['projectId', 'description']
@@ -1671,6 +1683,10 @@ export const TOOL_DEFINITIONS: McpTool[] = [
         estimatedHours: {
           type: 'number',
           description: 'Estimated hours for the task'
+        },
+        taskType: {
+          type: 'number',
+          description: 'Task type (1=FixedWork, 2=FixedDuration). Defaults to 1.'
         },
         startDateTime: {
           type: 'string',

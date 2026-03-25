@@ -857,7 +857,17 @@ export class AutotaskToolHandler {
         const r = await s.searchProjects(a); return { result: r, message: `Found ${r.length} projects` };
       }],
       ['autotask_create_project', async (a) => {
-        const id = await s.createProject(a); return { result: id, message: `Successfully created project with ID: ${id}` };
+        const projectData = { ...a };
+        // Map startDate/endDate (YYYY-MM-DD) to startDateTime/endDateTime (ISO) expected by the API
+        if (projectData.startDate && !projectData.startDateTime) {
+          projectData.startDateTime = `${projectData.startDate}T00:00:00Z`;
+          delete projectData.startDate;
+        }
+        if (projectData.endDate && !projectData.endDateTime) {
+          projectData.endDateTime = `${projectData.endDate}T00:00:00Z`;
+          delete projectData.endDate;
+        }
+        const id = await s.createProject(projectData); return { result: id, message: `Successfully created project with ID: ${id}` };
       }],
 
       // Resources
@@ -885,7 +895,8 @@ export class AutotaskToolHandler {
         const r = await s.searchTasks(a); return { result: r, message: `Found ${r.length} tasks` };
       }],
       ['autotask_create_task', async (a) => {
-        const id = await s.createTask(a); return { result: id, message: `Successfully created task with ID: ${id}` };
+        const taskData = { ...a, taskType: a.taskType ?? 1 };
+        const id = await s.createTask(taskData); return { result: id, message: `Successfully created task with ID: ${id}` };
       }],
 
       // Notes (ticket/project/company)
@@ -906,7 +917,7 @@ export class AutotaskToolHandler {
         const r = await s.searchProjectNotes(a.projectId, { pageSize: a.pageSize }); return { result: r, message: `Found ${r.length} project notes` };
       }],
       ['autotask_create_project_note', async (a) => {
-        const id = await s.createProjectNote(a.projectId, { title: a.title, description: a.description, noteType: a.noteType });
+        const id = await s.createProjectNote(a.projectId, { title: a.title, description: a.description, noteType: a.noteType, publish: a.publish ?? 1, isAnnouncement: a.isAnnouncement ?? false });
         return { result: id, message: `Successfully created project note with ID: ${id}` };
       }],
       ['autotask_get_company_note', async (a) => {
