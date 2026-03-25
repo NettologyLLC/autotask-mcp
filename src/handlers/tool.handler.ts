@@ -1068,6 +1068,47 @@ export class AutotaskToolHandler {
         await s.deleteQuoteItem(a.quoteId, a.quoteItemId); return { result: true, message: `Quote item ${a.quoteItemId} deleted successfully` };
       }],
 
+      // Service Calls
+      ['autotask_search_service_calls', async (a) => {
+        const r = await s.searchServiceCalls(a); return { result: r, message: `Found ${r.length} service calls` };
+      }],
+      ['autotask_get_service_call', async (a) => {
+        const r = await s.getServiceCall(a.id); return { result: r, message: 'Service call retrieved successfully' };
+      }],
+      ['autotask_create_service_call', async (a) => {
+        const id = await s.createServiceCall(a); return { result: id, message: `Successfully created service call with ID: ${id}` };
+      }],
+      ['autotask_update_service_call', async (a) => {
+        const { id, ...updates } = a;
+        await s.updateServiceCall(id, updates);
+        return { result: id, message: `Successfully updated service call ${id}` };
+      }],
+      ['autotask_delete_service_call', async (a) => {
+        await s.deleteServiceCall(a.id); return { result: true, message: `Service call ${a.id} deleted successfully` };
+      }],
+
+      // Service Call Tickets
+      ['autotask_search_service_call_tickets', async (a) => {
+        const r = await s.searchServiceCallTickets(a); return { result: r, message: `Found ${r.length} service call tickets` };
+      }],
+      ['autotask_create_service_call_ticket', async (a) => {
+        const id = await s.createServiceCallTicket(a); return { result: id, message: `Successfully linked ticket to service call with ID: ${id}` };
+      }],
+      ['autotask_delete_service_call_ticket', async (a) => {
+        await s.deleteServiceCallTicket(a.id); return { result: true, message: `Service call ticket link ${a.id} deleted successfully` };
+      }],
+
+      // Service Call Ticket Resources
+      ['autotask_search_service_call_ticket_resources', async (a) => {
+        const r = await s.searchServiceCallTicketResources(a); return { result: r, message: `Found ${r.length} service call ticket resources` };
+      }],
+      ['autotask_create_service_call_ticket_resource', async (a) => {
+        const id = await s.createServiceCallTicketResource(a); return { result: id, message: `Successfully assigned resource to service call ticket with ID: ${id}` };
+      }],
+      ['autotask_delete_service_call_ticket_resource', async (a) => {
+        await s.deleteServiceCallTicketResource(a.id); return { result: true, message: `Service call ticket resource ${a.id} unassigned successfully` };
+      }],
+
       // Picklist tools
       ['autotask_list_queues', async () => {
         const queues = await this.picklistCache.getQueues();

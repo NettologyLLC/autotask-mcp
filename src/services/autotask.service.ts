@@ -31,7 +31,10 @@ import {
   AutotaskQueryOptionsExtended,
   AutotaskBillingItem,
   AutotaskBillingItemApprovalLevel,
+<<<<<<< Updated upstream
   AutotaskTicketCharge,
+=======
+>>>>>>> Stashed changes
   AutotaskServiceCall,
   AutotaskServiceCallTicket,
   AutotaskServiceCallTicketResource
@@ -2088,6 +2091,228 @@ export class AutotaskService {
       return timeEntries;
     } catch (error) {
       this.logger.error('Failed to search time entries:', error);
+      throw error;
+    }
+  }
+
+  // =====================================================
+  // SERVICE CALLS - Dispatch and scheduling
+  // =====================================================
+
+  async getServiceCall(id: number): Promise<AutotaskServiceCall | null> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug(`Getting service call with ID: ${id}`);
+      const result = await client.serviceCalls.get(id);
+      return result.data as AutotaskServiceCall || null;
+    } catch (error) {
+      this.logger.error(`Failed to get service call ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async searchServiceCalls(options: AutotaskQueryOptionsExtended = {}): Promise<AutotaskServiceCall[]> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug('Searching service calls with options:', options);
+      const filters: any[] = [];
+
+      if (options.status !== undefined) {
+        filters.push({ op: 'eq', field: 'status', value: options.status });
+      }
+      if (options.startDate) {
+        filters.push({ op: 'gte', field: 'startDateTime', value: options.startDate });
+      }
+      if (options.endDate) {
+        filters.push({ op: 'lte', field: 'endDateTime', value: options.endDate });
+      }
+
+      if (filters.length === 0) {
+        filters.push({ op: 'gte', field: 'id', value: 0 });
+      }
+
+      const pageSize = Math.min(options.pageSize || 25, 200);
+      const queryOptions: any = {
+        filter: filters,
+        pageSize,
+        ...(options.page && { page: options.page }),
+      };
+
+      const result = await client.serviceCalls.list(queryOptions);
+      const serviceCalls = (result.data as AutotaskServiceCall[]) || [];
+
+      this.logger.info(`Retrieved ${serviceCalls.length} service calls (page ${options.page || 1}, pageSize ${pageSize})`);
+      return serviceCalls;
+    } catch (error) {
+      this.logger.error('Failed to search service calls:', error);
+      throw error;
+    }
+  }
+
+  async createServiceCall(data: Partial<AutotaskServiceCall>): Promise<number> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug('Creating service call:', data);
+      const result = await client.serviceCalls.create(data as any);
+      const id = (result.data as any)?.itemId ?? (result.data as any)?.id;
+      this.logger.info(`Service call created with ID: ${id}`);
+      return id;
+    } catch (error) {
+      this.logger.error('Failed to create service call:', error);
+      throw error;
+    }
+  }
+
+  async updateServiceCall(id: number, updates: Partial<AutotaskServiceCall>): Promise<void> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug(`Updating service call ${id}:`, updates);
+      await client.serviceCalls.patch(id, updates as any);
+      this.logger.info(`Service call ${id} updated successfully`);
+    } catch (error) {
+      this.logger.error(`Failed to update service call ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async deleteServiceCall(id: number): Promise<void> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug(`Deleting service call ${id}`);
+      await client.serviceCalls.delete(id);
+      this.logger.info(`Service call ${id} deleted`);
+    } catch (error) {
+      this.logger.error(`Failed to delete service call ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // =====================================================
+  // SERVICE CALL TICKETS - Link tickets to service calls
+  // =====================================================
+
+  async searchServiceCallTickets(options: AutotaskQueryOptionsExtended = {}): Promise<AutotaskServiceCallTicket[]> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug('Searching service call tickets with options:', options);
+      const filters: any[] = [];
+
+      if ((options as any).serviceCallId !== undefined) {
+        filters.push({ op: 'eq', field: 'serviceCallID', value: (options as any).serviceCallId });
+      }
+      if ((options as any).ticketId !== undefined) {
+        filters.push({ op: 'eq', field: 'ticketID', value: (options as any).ticketId });
+      }
+
+      if (filters.length === 0) {
+        filters.push({ op: 'gte', field: 'id', value: 0 });
+      }
+
+      const pageSize = Math.min(options.pageSize || 25, 200);
+      const queryOptions: any = {
+        filter: filters,
+        pageSize,
+        ...(options.page && { page: options.page }),
+      };
+
+      const result = await client.serviceCallTickets.list(queryOptions);
+      const items = (result.data as AutotaskServiceCallTicket[]) || [];
+
+      this.logger.info(`Retrieved ${items.length} service call tickets (page ${options.page || 1}, pageSize ${pageSize})`);
+      return items;
+    } catch (error) {
+      this.logger.error('Failed to search service call tickets:', error);
+      throw error;
+    }
+  }
+
+  async createServiceCallTicket(data: Partial<AutotaskServiceCallTicket>): Promise<number> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug('Creating service call ticket:', data);
+      const result = await client.serviceCallTickets.create(data as any);
+      const id = (result.data as any)?.itemId ?? (result.data as any)?.id;
+      this.logger.info(`Service call ticket created with ID: ${id}`);
+      return id;
+    } catch (error) {
+      this.logger.error('Failed to create service call ticket:', error);
+      throw error;
+    }
+  }
+
+  async deleteServiceCallTicket(id: number): Promise<void> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug(`Deleting service call ticket ${id}`);
+      await client.serviceCallTickets.delete(id);
+      this.logger.info(`Service call ticket ${id} deleted`);
+    } catch (error) {
+      this.logger.error(`Failed to delete service call ticket ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // =====================================================
+  // SERVICE CALL TICKET RESOURCES - Assign resources to service call tickets
+  // =====================================================
+
+  async searchServiceCallTicketResources(options: AutotaskQueryOptionsExtended = {}): Promise<AutotaskServiceCallTicketResource[]> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug('Searching service call ticket resources with options:', options);
+      const filters: any[] = [];
+
+      if ((options as any).serviceCallTicketId !== undefined) {
+        filters.push({ op: 'eq', field: 'serviceCallTicketID', value: (options as any).serviceCallTicketId });
+      }
+      if ((options as any).resourceId !== undefined) {
+        filters.push({ op: 'eq', field: 'resourceID', value: (options as any).resourceId });
+      }
+
+      if (filters.length === 0) {
+        filters.push({ op: 'gte', field: 'id', value: 0 });
+      }
+
+      const pageSize = Math.min(options.pageSize || 25, 200);
+      const queryOptions: any = {
+        filter: filters,
+        pageSize,
+        ...(options.page && { page: options.page }),
+      };
+
+      const result = await client.serviceCallTicketResources.list(queryOptions);
+      const items = (result.data as AutotaskServiceCallTicketResource[]) || [];
+
+      this.logger.info(`Retrieved ${items.length} service call ticket resources (page ${options.page || 1}, pageSize ${pageSize})`);
+      return items;
+    } catch (error) {
+      this.logger.error('Failed to search service call ticket resources:', error);
+      throw error;
+    }
+  }
+
+  async createServiceCallTicketResource(data: Partial<AutotaskServiceCallTicketResource>): Promise<number> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug('Creating service call ticket resource:', data);
+      const result = await client.serviceCallTicketResources.create(data as any);
+      const id = (result.data as any)?.itemId ?? (result.data as any)?.id;
+      this.logger.info(`Service call ticket resource created with ID: ${id}`);
+      return id;
+    } catch (error) {
+      this.logger.error('Failed to create service call ticket resource:', error);
+      throw error;
+    }
+  }
+
+  async deleteServiceCallTicketResource(id: number): Promise<void> {
+    const client = await this.ensureClient();
+    try {
+      this.logger.debug(`Deleting service call ticket resource ${id}`);
+      await client.serviceCallTicketResources.delete(id);
+      this.logger.info(`Service call ticket resource ${id} deleted`);
+    } catch (error) {
+      this.logger.error(`Failed to delete service call ticket resource ${id}:`, error);
       throw error;
     }
   }

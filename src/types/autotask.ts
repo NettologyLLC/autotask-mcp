@@ -458,6 +458,34 @@ export interface AutotaskBillingItemApprovalLevel {
   [key: string]: any;
 }
 
+export interface AutotaskServiceCall {
+  id?: number;
+  description?: string;
+  status?: number;
+  startDateTime?: string;
+  endDateTime?: string;
+  duration?: number;
+  createDateTime?: string;
+  canceledDateTime?: string;
+  cancelationNotice?: string;
+  lastModifiedDateTime?: string;
+  [key: string]: any;
+}
+
+export interface AutotaskServiceCallTicket {
+  id?: number;
+  serviceCallID?: number;
+  ticketID?: number;
+  [key: string]: any;
+}
+
+export interface AutotaskServiceCallTicketResource {
+  id?: number;
+  serviceCallTicketID?: number;
+  resourceID?: number;
+  [key: string]: any;
+}
+
 export interface AutotaskUserDefinedField {
   name: string;
   value: string;

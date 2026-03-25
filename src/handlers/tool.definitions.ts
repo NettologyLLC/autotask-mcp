@@ -1912,6 +1912,259 @@ export const TOOL_DEFINITIONS: McpTool[] = [
     }
   },
 
+  // Service Call tools
+  {
+    name: 'autotask_search_service_calls',
+    description: 'Search for service calls in Autotask. Returns 25 results per page by default. Use page parameter for more results.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'number',
+          description: 'Filter by service call status ID'
+        },
+        startDate: {
+          type: 'string',
+          description: 'Filter service calls starting on or after this date (ISO format, e.g. 2026-01-01T00:00:00Z)'
+        },
+        endDate: {
+          type: 'string',
+          description: 'Filter service calls ending on or before this date (ISO format)'
+        },
+        page: {
+          type: 'number',
+          description: 'Page number for pagination (default: 1)',
+          minimum: 1
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Results per page (default: 25, max: 200)',
+          minimum: 1,
+          maximum: 200
+        }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'autotask_get_service_call',
+    description: 'Get detailed information for a specific service call by ID.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'Service call ID to retrieve'
+        }
+      },
+      required: ['id']
+    }
+  },
+  {
+    name: 'autotask_create_service_call',
+    description: 'Create a new service call in Autotask',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        description: {
+          type: 'string',
+          description: 'Service call description'
+        },
+        startDateTime: {
+          type: 'string',
+          description: 'Service call start date/time (ISO format, e.g. 2026-01-15T09:00:00Z)'
+        },
+        endDateTime: {
+          type: 'string',
+          description: 'Service call end date/time (ISO format)'
+        },
+        status: {
+          type: 'number',
+          description: 'Service call status ID'
+        },
+        duration: {
+          type: 'number',
+          description: 'Duration in hours'
+        }
+      },
+      required: ['description', 'startDateTime', 'endDateTime', 'status']
+    }
+  },
+  {
+    name: 'autotask_update_service_call',
+    description: 'Update an existing service call in Autotask',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'Service call ID to update'
+        },
+        description: {
+          type: 'string',
+          description: 'Service call description'
+        },
+        startDateTime: {
+          type: 'string',
+          description: 'Service call start date/time (ISO format)'
+        },
+        endDateTime: {
+          type: 'string',
+          description: 'Service call end date/time (ISO format)'
+        },
+        status: {
+          type: 'number',
+          description: 'Service call status ID'
+        },
+        duration: {
+          type: 'number',
+          description: 'Duration in hours'
+        }
+      },
+      required: ['id']
+    }
+  },
+  {
+    name: 'autotask_delete_service_call',
+    description: 'Delete a service call from Autotask',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'Service call ID to delete'
+        }
+      },
+      required: ['id']
+    }
+  },
+
+  // Service Call Ticket tools (link tickets to service calls)
+  {
+    name: 'autotask_search_service_call_tickets',
+    description: 'Search for ticket associations on service calls. Use to find which tickets are linked to a service call.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        serviceCallId: {
+          type: 'number',
+          description: 'Filter by service call ID'
+        },
+        ticketId: {
+          type: 'number',
+          description: 'Filter by ticket ID'
+        },
+        page: {
+          type: 'number',
+          description: 'Page number for pagination (default: 1)',
+          minimum: 1
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Results per page (default: 25, max: 200)',
+          minimum: 1,
+          maximum: 200
+        }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'autotask_create_service_call_ticket',
+    description: 'Link a ticket to a service call',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        serviceCallID: {
+          type: 'number',
+          description: 'Service call ID to link the ticket to'
+        },
+        ticketID: {
+          type: 'number',
+          description: 'Ticket ID to link to the service call'
+        }
+      },
+      required: ['serviceCallID', 'ticketID']
+    }
+  },
+  {
+    name: 'autotask_delete_service_call_ticket',
+    description: 'Unlink a ticket from a service call',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'Service call ticket link ID to delete'
+        }
+      },
+      required: ['id']
+    }
+  },
+
+  // Service Call Ticket Resource tools (assign resources to service call tickets)
+  {
+    name: 'autotask_search_service_call_ticket_resources',
+    description: 'Search for resource assignments on service call tickets. Use to find which technicians are assigned to a service call.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        serviceCallTicketId: {
+          type: 'number',
+          description: 'Filter by service call ticket ID'
+        },
+        resourceId: {
+          type: 'number',
+          description: 'Filter by resource (technician) ID'
+        },
+        page: {
+          type: 'number',
+          description: 'Page number for pagination (default: 1)',
+          minimum: 1
+        },
+        pageSize: {
+          type: 'number',
+          description: 'Results per page (default: 25, max: 200)',
+          minimum: 1,
+          maximum: 200
+        }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'autotask_create_service_call_ticket_resource',
+    description: 'Assign a resource (technician) to a service call ticket',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        serviceCallTicketID: {
+          type: 'number',
+          description: 'Service call ticket ID to assign the resource to'
+        },
+        resourceID: {
+          type: 'number',
+          description: 'Resource (technician) ID to assign'
+        }
+      },
+      required: ['serviceCallTicketID', 'resourceID']
+    }
+  },
+  {
+    name: 'autotask_delete_service_call_ticket_resource',
+    description: 'Unassign a resource (technician) from a service call ticket',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'Service call ticket resource assignment ID to delete'
+        }
+      },
+      required: ['id']
+    }
+  },
+
   // === Meta-tools for progressive discovery (lazy loading mode) ===
   {
     name: 'autotask_list_categories',
@@ -2270,7 +2523,12 @@ export const TOOL_CATEGORIES: Record<string, { description: string; tools: strin
     tools: ['autotask_get_company_note', 'autotask_search_company_notes', 'autotask_create_company_note']
   },
   service_calls: {
+<<<<<<< Updated upstream
     description: 'Create, update, and manage service calls, their linked tickets, and resource assignments',
     tools: ['autotask_get_service_call', 'autotask_search_service_calls', 'autotask_create_service_call', 'autotask_update_service_call', 'autotask_delete_service_call', 'autotask_search_service_call_tickets', 'autotask_create_service_call_ticket', 'autotask_delete_service_call_ticket', 'autotask_search_service_call_ticket_resources', 'autotask_create_service_call_ticket_resource', 'autotask_delete_service_call_ticket_resource']
+=======
+    description: 'Service call dispatching, ticket linking, and resource assignments',
+    tools: ['autotask_search_service_calls', 'autotask_get_service_call', 'autotask_create_service_call', 'autotask_update_service_call', 'autotask_delete_service_call', 'autotask_search_service_call_tickets', 'autotask_create_service_call_ticket', 'autotask_delete_service_call_ticket', 'autotask_search_service_call_ticket_resources', 'autotask_create_service_call_ticket_resource', 'autotask_delete_service_call_ticket_resource']
+>>>>>>> Stashed changes
   }
 };
