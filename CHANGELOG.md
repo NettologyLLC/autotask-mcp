@@ -1,3 +1,10 @@
+## [2.15.1](https://github.com/wyre-technology/autotask-mcp/compare/v2.15.0...v2.15.1) (2026-03-26)
+
+
+### Bug Fixes
+
+* task creation endpoint, ticket notes, field info + phase tools ([9d7fa42](https://github.com/wyre-technology/autotask-mcp/commit/9d7fa42a1ce5d9e08651ca5b524a86d9b29a404b)), closes [#46](https://github.com/wyre-technology/autotask-mcp/issues/46) [#47](https://github.com/wyre-technology/autotask-mcp/issues/47)
+
 # [2.15.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.14.1...v2.15.0) (2026-03-25)
 
 
