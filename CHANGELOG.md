@@ -1,3 +1,15 @@
+# [2.16.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.15.2...v2.16.0) (2026-03-31)
+
+
+### Bug Fixes
+
+* **ci:** Resolve npm ci prefer-offline/online conflict in Dockerfile ([60734c8](https://github.com/wyre-technology/autotask-mcp/commit/60734c8cc935b3913c3c310a1d039efdd5d41254))
+
+
+### Features
+
+* add TicketCharges CRUD support ([b61aaf0](https://github.com/wyre-technology/autotask-mcp/commit/b61aaf0b0e113121b73a851b17970164ada9edf4))
+
 ## [2.15.2](https://github.com/wyre-technology/autotask-mcp/compare/v2.15.1...v2.15.2) (2026-03-31)
 
 
