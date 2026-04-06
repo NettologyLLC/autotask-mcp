@@ -1,3 +1,16 @@
+# [2.17.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.16.1...v2.17.0) (2026-04-06)
+
+
+### Bug Fixes
+
+* allow unauthenticated tools/list in gateway mode ([afa5120](https://github.com/wyre-technology/autotask-mcp/commit/afa51208a9c1dd06625809b8339d11be65770ee2))
+* **tests:** update test expectations for implemented billing code methods ([1833d02](https://github.com/wyre-technology/autotask-mcp/commit/1833d02fd217d82348167067dd43d938b40f31c3))
+
+
+### Features
+
+* add Regular Time entry support with name resolution ([f1947a8](https://github.com/wyre-technology/autotask-mcp/commit/f1947a85c49790f55476d6c0c2f397b53172a0f0))
+
 ## [2.16.1](https://github.com/wyre-technology/autotask-mcp/compare/v2.16.0...v2.16.1) (2026-04-03)
 
 
