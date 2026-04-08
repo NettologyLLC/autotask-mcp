@@ -1,3 +1,15 @@
+# [2.18.0](https://github.com/wyre-technology/autotask-mcp/compare/v2.17.2...v2.18.0) (2026-04-08)
+
+
+### Features
+
+* **attachments:** add autotask_create_ticket_attachment tool ([#55](https://github.com/wyre-technology/autotask-mcp/issues/55)) ([#62](https://github.com/wyre-technology/autotask-mcp/issues/62)) ([8ff325e](https://github.com/wyre-technology/autotask-mcp/commit/8ff325e1f11d24097aab0f1a5c7a5968bc4d409d))
+* **billing:** add invoice details tool and billing item filters ([#55](https://github.com/wyre-technology/autotask-mcp/issues/55)) ([#61](https://github.com/wyre-technology/autotask-mcp/issues/61)) ([cc9354f](https://github.com/wyre-technology/autotask-mcp/commit/cc9354f9703e23c9dde3eaed3dee0e9f065e3a88))
+* **checklist:** add ticket checklist items CRUD tools ([#55](https://github.com/wyre-technology/autotask-mcp/issues/55)) ([#59](https://github.com/wyre-technology/autotask-mcp/issues/59)) ([78e0f78](https://github.com/wyre-technology/autotask-mcp/commit/78e0f7805e36ce9c69e0ecd3b6c7326e95d51615)), closes [#33](https://github.com/wyre-technology/autotask-mcp/issues/33) [#32](https://github.com/wyre-technology/autotask-mcp/issues/32)
+* **config:** auto-detect Autotask API zone from username ([#55](https://github.com/wyre-technology/autotask-mcp/issues/55)) ([#60](https://github.com/wyre-technology/autotask-mcp/issues/60)) ([01a3bae](https://github.com/wyre-technology/autotask-mcp/commit/01a3bae888c6cb3cb45d91afb50e83b2f0eed6c1))
+* **projects:** add autotask_update_project tool ([#55](https://github.com/wyre-technology/autotask-mcp/issues/55)) ([#57](https://github.com/wyre-technology/autotask-mcp/issues/57)) ([1efeead](https://github.com/wyre-technology/autotask-mcp/commit/1efeead572b60b1513bd7c773ca684eb774e36c0))
+* **tickets:** expand create/update_ticket field coverage ([#55](https://github.com/wyre-technology/autotask-mcp/issues/55)) ([#58](https://github.com/wyre-technology/autotask-mcp/issues/58)) ([16614ff](https://github.com/wyre-technology/autotask-mcp/commit/16614ff2209e5b82d57fbc83bbfbef0cc8e24080))
+
 ## [Unreleased]
 
 ### Added
