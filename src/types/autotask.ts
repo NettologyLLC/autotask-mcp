@@ -261,6 +261,20 @@ export interface AutotaskTicketAttachment {
   [key: string]: any;
 }
 
+/**
+ * Request payload for creating a ticket attachment via
+ * POST /Tickets/{id}/Attachments. Autotask expects the file bytes
+ * as a base64-encoded string in `data`.
+ */
+export interface AutotaskTicketAttachmentCreateRequest {
+  title: string;
+  fullPath: string;
+  data: string; // base64-encoded file bytes
+  attachmentType?: string; // defaults to 'FILE_ATTACHMENT'
+  contentType?: string;
+  publish?: number; // 1 = All Autotask Users, 2 = Internal Users Only
+}
+
 export interface AutotaskExpenseReport {
   id?: number;
   name?: string;

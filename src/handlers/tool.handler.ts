@@ -1078,6 +1078,23 @@ export class AutotaskToolHandler {
       ['autotask_search_ticket_attachments', async (a) => {
         const r = await s.searchTicketAttachments(a.ticketId, { pageSize: a.pageSize }); return { result: r, message: `Found ${r.length} ticket attachments` };
       }],
+      ['autotask_create_ticket_attachment', async (a) => {
+        // Never log `data` (base64 file bytes) — can be large / contain PII.
+        const decodedBytes = typeof a.data === 'string'
+          ? Buffer.from(a.data, 'base64').length
+          : 0;
+        this.logger.info(
+          `autotask_create_ticket_attachment invoked: ticketId=${a.ticketId} title="${a.title}" bytes=${decodedBytes}`
+        );
+        const id = await s.createTicketAttachment(a.ticketId, {
+          title: a.title,
+          fullPath: a.fullPath || a.title,
+          data: a.data,
+          contentType: a.contentType,
+          publish: a.publish ?? 1
+        });
+        return { result: id, message: `Successfully created ticket attachment with ID: ${id}` };
+      }],
 
       // Expense Reports
       ['autotask_get_expense_report', async (a) => {

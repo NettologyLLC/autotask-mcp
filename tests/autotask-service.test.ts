@@ -133,9 +133,77 @@ describe('AutotaskService', () => {
 
     test('should handle attachment methods with proper error messages', async () => {
       const service = new AutotaskService(mockConfig, mockLogger);
-      
+
       await expect(service.getTicketAttachment(123, 456)).rejects.toThrow();
       await expect(service.searchTicketAttachments(123)).rejects.toThrow();
+    });
+
+    describe('createTicketAttachment', () => {
+      const validBase64 = Buffer.from('hello world').toString('base64');
+
+      test('rejects invalid base64 before any HTTP call', async () => {
+        const service = new AutotaskService(mockConfig, mockLogger);
+        // Spy to ensure ensureClient is never reached
+        const ensureSpy = jest
+          .spyOn(service as any, 'ensureClient')
+          .mockResolvedValue({ axios: { post: jest.fn() } });
+
+        await expect(
+          service.createTicketAttachment(123, {
+            title: 'bad.bin',
+            fullPath: 'bad.bin',
+            data: 'not*valid*base64!!!'
+          })
+        ).rejects.toThrow(/not valid base64/);
+
+        expect(ensureSpy).not.toHaveBeenCalled();
+      });
+
+      test('rejects oversized attachments before any HTTP call', async () => {
+        const service = new AutotaskService(mockConfig, mockLogger);
+        const ensureSpy = jest
+          .spyOn(service as any, 'ensureClient')
+          .mockResolvedValue({ axios: { post: jest.fn() } });
+
+        // 4 MB of zero bytes, base64-encoded
+        const big = Buffer.alloc(4 * 1024 * 1024).toString('base64');
+        await expect(
+          service.createTicketAttachment(123, {
+            title: 'huge.bin',
+            fullPath: 'huge.bin',
+            data: big
+          })
+        ).rejects.toThrow(/exceeds the Autotask 3MB/);
+
+        expect(ensureSpy).not.toHaveBeenCalled();
+      });
+
+      test('happy path posts to /Tickets/{id}/Attachments and returns itemId', async () => {
+        const service = new AutotaskService(mockConfig, mockLogger);
+        const post = jest.fn().mockResolvedValue({ data: { itemId: 987 } });
+        jest
+          .spyOn(service as any, 'ensureClient')
+          .mockResolvedValue({ axios: { post } });
+
+        const id = await service.createTicketAttachment(555, {
+          title: 'readme.txt',
+          fullPath: 'readme.txt',
+          data: validBase64,
+          contentType: 'text/plain',
+          publish: 1
+        });
+
+        expect(id).toBe(987);
+        expect(post).toHaveBeenCalledTimes(1);
+        const [url, body] = post.mock.calls[0];
+        expect(url).toBe('/Tickets/555/Attachments');
+        expect(body.title).toBe('readme.txt');
+        expect(body.fullPath).toBe('readme.txt');
+        expect(body.data).toBe(validBase64);
+        expect(body.attachmentType).toBe('FILE_ATTACHMENT');
+        expect(body.publish).toBe(1);
+        expect(body.parentId).toBe(555);
+      });
     });
 
     test('should handle expense methods with proper error messages', async () => {

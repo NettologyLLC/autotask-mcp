@@ -20,6 +20,7 @@ import {
   AutotaskCompanyNote,
   AutotaskTicketAttachment,
   AutotaskTicketChecklistItem,
+  AutotaskTicketAttachmentCreateRequest,
   AutotaskExpenseReport,
   AutotaskExpenseItem,
   AutotaskQuote,
@@ -1512,6 +1513,82 @@ export class AutotaskService {
       return attachments as AutotaskTicketAttachment[];
     } catch (error) {
       this.logger.error(`Failed to search ticket attachments for ticket ${ticketId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload a file attachment to a ticket. `data.data` must be a base64-encoded
+   * string of the raw file bytes. Autotask enforces a 3MB hard limit on ticket
+   * attachments; we validate locally so callers get a clear error instead of a
+   * cryptic 400 from the API.
+   */
+  async createTicketAttachment(
+    ticketId: number,
+    data: AutotaskTicketAttachmentCreateRequest
+  ): Promise<number> {
+    const MAX_ATTACHMENT_BYTES = 3 * 1024 * 1024; // 3 MB
+
+    if (!data || typeof data.data !== 'string' || data.data.length === 0) {
+      throw new Error('createTicketAttachment: `data` (base64-encoded file content) is required');
+    }
+    if (!data.title) {
+      throw new Error('createTicketAttachment: `title` is required');
+    }
+
+    // Validate base64 and decoded size up front.
+    let decodedLength: number;
+    try {
+      const buf = Buffer.from(data.data, 'base64');
+      // Buffer.from silently drops invalid chars, so round-trip to detect garbage.
+      if (buf.toString('base64').replace(/=+$/, '') !== data.data.replace(/\s+/g, '').replace(/=+$/, '')) {
+        throw new Error('invalid base64');
+      }
+      decodedLength = buf.length;
+    } catch {
+      throw new Error('createTicketAttachment: `data` is not valid base64-encoded content');
+    }
+
+    if (decodedLength === 0) {
+      throw new Error('createTicketAttachment: decoded attachment is empty');
+    }
+    if (decodedLength > MAX_ATTACHMENT_BYTES) {
+      throw new Error(
+        `createTicketAttachment: attachment is ${decodedLength} bytes which exceeds the Autotask 3MB (${MAX_ATTACHMENT_BYTES} byte) limit for ticket attachments`
+      );
+    }
+
+    const client = await this.ensureClient();
+
+    const payload = {
+      title: data.title,
+      fullPath: data.fullPath || data.title,
+      data: data.data,
+      attachmentType: data.attachmentType || 'FILE_ATTACHMENT',
+      contentType: data.contentType,
+      publish: data.publish ?? 1,
+      parentId: ticketId,
+      parentType: 4 // Ticket
+    };
+
+    try {
+      this.logger.info(
+        `Creating ticket attachment - ticketId=${ticketId} title="${data.title}" bytes=${decodedLength}`
+      );
+      const axiosInstance = (client as any).axios;
+      const response = await axiosInstance.post(`/Tickets/${ticketId}/Attachments`, payload);
+      const attachmentId = response.data?.itemId ?? response.data?.id;
+      this.logger.info(`Ticket attachment created with ID: ${attachmentId} for ticket ${ticketId}`);
+      return attachmentId;
+    } catch (error) {
+      this.logger.error(`Failed to create ticket attachment for ticket ${ticketId}:`, error);
+      // Surface Autotask API validation errors rather than a generic 500.
+      const apiErrors: string[] | undefined =
+        (error as any)?.originalError?.response?.data?.errors ||
+        (error as any)?.response?.data?.errors;
+      if (apiErrors && apiErrors.length > 0) {
+        throw new Error(`Autotask API error: ${apiErrors.join('; ')}`);
+      }
       throw error;
     }
   }

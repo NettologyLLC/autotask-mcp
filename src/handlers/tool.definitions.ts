@@ -1274,6 +1274,43 @@ export const TOOL_DEFINITIONS: McpTool[] = [
       required: ['ticketId']
     }
   },
+  {
+    name: 'autotask_create_ticket_attachment',
+    description:
+      'Upload a file attachment to an existing ticket. The file content must be passed as a base64-encoded string in the `data` field (MCP is JSON-RPC, so binary bytes must be base64-encoded). Autotask enforces a 3 MB hard limit on ticket attachments; this tool validates the decoded size before calling the API and returns a clear error if the limit is exceeded. Example: { ticketId: 12345, title: "screenshot.png", data: "iVBORw0KGgoAAAANSUhEUgAA..." }',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ticketId: {
+          type: 'number',
+          description: 'The ticket ID to attach the file to'
+        },
+        title: {
+          type: 'string',
+          description: 'Display title for the attachment (typically the filename, e.g. "screenshot.png")'
+        },
+        data: {
+          type: 'string',
+          description:
+            'Base64-encoded file content. Maximum decoded size: 3 MB (Autotask ticket attachment limit). Example: read a file and pass its base64 representation here.'
+        },
+        fullPath: {
+          type: 'string',
+          description: 'Original filename including any path. Defaults to `title` if not provided.'
+        },
+        contentType: {
+          type: 'string',
+          description: 'MIME type of the file (e.g. "image/png", "application/pdf"). Optional.'
+        },
+        publish: {
+          type: 'number',
+          description: 'Visibility: 1 = All Autotask Users (default), 2 = Internal Users Only',
+          default: 1
+        }
+      },
+      required: ['ticketId', 'title', 'data']
+    }
+  },
 
   // Expense Reports tools
   {
@@ -2906,7 +2943,7 @@ export const TOOL_CATEGORIES: Record<string, { description: string; tools: strin
   },
   tickets: {
     description: 'Search, create, update tickets and manage ticket notes, attachments, and charges',
-    tools: ['autotask_search_tickets', 'autotask_get_ticket_details', 'autotask_create_ticket', 'autotask_update_ticket', 'autotask_get_ticket_note', 'autotask_search_ticket_notes', 'autotask_create_ticket_note', 'autotask_get_ticket_attachment', 'autotask_search_ticket_attachments', 'autotask_get_ticket_charge', 'autotask_search_ticket_charges', 'autotask_create_ticket_charge', 'autotask_update_ticket_charge', 'autotask_delete_ticket_charge']
+    tools: ['autotask_search_tickets', 'autotask_get_ticket_details', 'autotask_create_ticket', 'autotask_update_ticket', 'autotask_get_ticket_note', 'autotask_search_ticket_notes', 'autotask_create_ticket_note', 'autotask_get_ticket_attachment', 'autotask_search_ticket_attachments', 'autotask_create_ticket_attachment', 'autotask_get_ticket_charge', 'autotask_search_ticket_charges', 'autotask_create_ticket_charge', 'autotask_update_ticket_charge', 'autotask_delete_ticket_charge']
   },
   projects: {
     description: 'Search and create projects, tasks, phases, and project notes',
