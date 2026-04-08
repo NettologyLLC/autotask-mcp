@@ -2773,4 +2773,33 @@ export class AutotaskService {
       throw error;
     }
   }
+
+  // Company Site Configurations
+  async getCompanySiteConfigurations(companyId: number): Promise<any[]> {
+    const client = await this.ensureClient();
+
+    try {
+      this.logger.debug(`Getting company site configurations for company ID: ${companyId}`);
+      const result = await (client as any).companySiteConfigurations.list({
+        filter: [{ op: 'eq', field: 'companyID', value: companyId }]
+      });
+      return (result?.data as any[]) || [];
+    } catch (error) {
+      this.logger.error(`Failed to get company site configurations for company ${companyId}:`, error);
+      throw error;
+    }
+  }
+
+  async updateCompanySiteConfiguration(id: number, updates: Record<string, any>): Promise<void> {
+    const client = await this.ensureClient();
+
+    try {
+      this.logger.debug(`Updating company site configuration ${id}:`, updates);
+      await (client as any).companySiteConfigurations.update(id, updates);
+      this.logger.info(`Company site configuration ${id} updated successfully`);
+    } catch (error) {
+      this.logger.error(`Failed to update company site configuration ${id}:`, error);
+      throw error;
+    }
+  }
 } 

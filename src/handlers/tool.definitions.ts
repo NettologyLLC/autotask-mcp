@@ -133,6 +133,39 @@ export const TOOL_DEFINITIONS: McpTool[] = [
       required: ['id']
     }
   },
+  {
+    name: 'autotask_get_company_site_configuration',
+    description: 'Get the site configuration record(s) for a company in Autotask. Site configurations contain tenant-defined fields used to track per-company configuration data. Call this first to discover which fields are available before calling autotask_update_company_site_configuration.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        companyId: {
+          type: 'number',
+          description: 'The company ID whose site configuration records should be returned'
+        }
+      },
+      required: ['companyId']
+    }
+  },
+  {
+    name: 'autotask_update_company_site_configuration',
+    description: 'Update fields on a company site configuration record. The set of available fields is tenant-defined, so callers should first call autotask_get_company_site_configuration to discover the available field names and current values for the company. Pass the site configuration record id (not the company id) along with an updates object containing the fields to change.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The company site configuration record ID to update (obtained from autotask_get_company_site_configuration).'
+        },
+        updates: {
+          type: 'object',
+          description: 'Object containing the site configuration fields to update. Field names are tenant-specific.',
+          additionalProperties: true
+        }
+      },
+      required: ['id', 'updates']
+    }
+  },
 
   // Contact tools
   {
@@ -2935,7 +2968,7 @@ export const TOOL_CATEGORIES: Record<string, { description: string; tools: strin
   },
   companies: {
     description: 'Search, create, and update companies',
-    tools: ['autotask_search_companies', 'autotask_create_company', 'autotask_update_company']
+    tools: ['autotask_search_companies', 'autotask_create_company', 'autotask_update_company', 'autotask_get_company_site_configuration', 'autotask_update_company_site_configuration']
   },
   contacts: {
     description: 'Search and create contacts',

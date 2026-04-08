@@ -93,6 +93,21 @@ describe('AutotaskService', () => {
     expect(typeof service.updateTask).toBe('function');
     
     expect(typeof service.testConnection).toBe('function');
+
+    expect(typeof service.getCompanySiteConfigurations).toBe('function');
+    expect(typeof service.updateCompanySiteConfiguration).toBe('function');
+  });
+
+  describe('Company Site Configurations', () => {
+    test('getCompanySiteConfigurations should propagate errors when client cannot connect', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+      await expect(service.getCompanySiteConfigurations(123)).rejects.toThrow();
+    });
+
+    test('updateCompanySiteConfiguration should propagate errors when client cannot connect', async () => {
+      const service = new AutotaskService(mockConfig, mockLogger);
+      await expect(service.updateCompanySiteConfiguration(456, { someField: 'value' })).rejects.toThrow();
+    });
   });
 
   // Tests for new entity methods

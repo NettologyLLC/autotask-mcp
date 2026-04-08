@@ -771,6 +771,14 @@ export class AutotaskToolHandler {
       ['autotask_update_company', async (a) => {
         await s.updateCompany(a.id, a); return { result: undefined, message: `Successfully updated company ID: ${a.id}` };
       }],
+      ['autotask_get_company_site_configuration', async (a) => {
+        const r = await s.getCompanySiteConfigurations(a.companyId);
+        return { result: r, message: `Found ${r.length} site configuration record(s) for company ${a.companyId}` };
+      }],
+      ['autotask_update_company_site_configuration', async (a) => {
+        await s.updateCompanySiteConfiguration(a.id, a.updates || {});
+        return { result: undefined, message: `Successfully updated company site configuration ID: ${a.id}` };
+      }],
 
       // Contacts
       ['autotask_search_contacts', async (a) => {
