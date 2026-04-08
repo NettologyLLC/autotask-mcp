@@ -525,11 +525,71 @@ export class AutotaskService {
   }
 
   async updateTicket(id: number, updates: Partial<AutotaskTicket>): Promise<void> {
-    const client = await this.ensureClient();
-    
+    // IMPORTANT: do NOT use `client.tickets.patch(id, updates)` here.
+    //
+    // autotask-node's Tickets.patch() calls `PATCH {endpoint}/{id}` which
+    // Autotask's REST API does not support — it returns 405 Method Not
+    // Allowed for every update request. Autotask's update pattern is
+    // body-based: PATCH /Tickets (no /{id}) with `{id, ...fields}` in the
+    // body. Many of autotask-node's 222 entities have the same bug, but
+    // Tickets is the one that actually hits us in production.
+    //
+    // Fix: make the HTTP call directly with Node's built-in `fetch`, using
+    // the same zone-resolved URL + auth headers the SDK uses. Zero axios
+    // touch (important given the recent npm axios supply-chain concern)
+    // and zero new runtime dependencies. Upstream autotask-node fix is
+    // tracked separately as a follow-up.
+
+    // Ensure client is initialized so `resolveAutotaskApiUrl` has been
+    // called and the zone-resolved URL is cached. We don't actually use
+    // the returned client object.
+    await this.ensureClient();
+
+    const { username, secret, integrationCode, apiUrl } = this.config.autotask;
+    if (!username || !secret || !integrationCode) {
+      throw new Error('Missing required Autotask credentials for updateTicket');
+    }
+
+    // `resolveAutotaskApiUrl` caches per-username so this is a no-op after
+    // the first call in the process lifetime. Reusing it (instead of
+    // reading the axios baseURL off the SDK client) keeps us entirely off
+    // the axios codepath.
+    const baseUrl = await resolveAutotaskApiUrl(username, apiUrl, this.logger);
+    // Normalize: trim trailing slash, append the Tickets resource under v1.0.
+    const ticketsUrl = `${baseUrl.replace(/\/+$/, '')}/v1.0/Tickets`;
+
+    this.logger.debug(`Updating ticket ${id}:`, updates);
+
     try {
-      this.logger.debug(`Updating ticket ${id}:`, updates);
-      await client.tickets.patch(id, updates as any);
+      const response = await fetch(ticketsUrl, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ApiIntegrationcode: integrationCode,
+          UserName: username,
+          Secret: secret,
+        },
+        body: JSON.stringify({ id, ...updates }),
+        signal: AbortSignal.timeout(30_000),
+      });
+
+      if (!response.ok) {
+        const bodyText = await response.text().catch(() => '');
+        // Surface Autotask's own error array if we can parse it, otherwise
+        // include the raw body so the tool caller sees something actionable.
+        let detail = bodyText.slice(0, 500);
+        try {
+          const parsed = JSON.parse(bodyText);
+          if (parsed?.errors && Array.isArray(parsed.errors) && parsed.errors.length > 0) {
+            detail = parsed.errors.join('; ');
+          }
+        } catch {
+          /* fall through with raw text */
+        }
+        throw new Error(`Autotask update_ticket failed: HTTP ${response.status}: ${detail}`);
+      }
+
       this.logger.info(`Ticket ${id} updated successfully`);
     } catch (error) {
       this.logger.error(`Failed to update ticket ${id}:`, error);
