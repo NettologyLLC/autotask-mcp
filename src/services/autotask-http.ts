@@ -257,6 +257,8 @@ export class AutotaskHttpClient {
 
   /**
    * POST /{ParentEntity}/{parentId}/{ChildEntity}/query — child collection query.
+   * Falls back to GET (no /query suffix) if POST returns 404, since some child
+   * entities (Notes, Attachments) don't support the /query endpoint.
    */
   async childQuery<T>(
     parentEntity: string,
@@ -272,12 +274,25 @@ export class AutotaskHttpClient {
     if (opts.includeFields && opts.includeFields.length > 0) {
       body.IncludeFields = opts.includeFields;
     }
-    const res = await this.request<QueryResponse<T>>(
-      'POST',
-      `/${parentEntity}/${parentId}/${childEntity}/query`,
-      body
-    );
-    return res?.items || [];
+    try {
+      const res = await this.request<QueryResponse<T>>(
+        'POST',
+        `/${parentEntity}/${parentId}/${childEntity}/query`,
+        body
+      );
+      return res?.items || [];
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('HTTP 404')) {
+        // Fallback: GET /{Parent}/{id}/{Child} returns { items: [...] }
+        const res = await this.request<QueryResponse<T>>(
+          'GET',
+          `/${parentEntity}/${parentId}/${childEntity}`
+        );
+        return res?.items || [];
+      }
+      throw err;
+    }
   }
 
   /**
