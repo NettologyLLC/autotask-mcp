@@ -54,8 +54,14 @@ export class AutotaskMcpServer {
   /**
    * Create a fresh MCP Server with all handlers registered.
    * Called per-request in HTTP (stateless) mode so each initialize gets a clean server.
+   *
+   * In gateway mode, per-request handlers are passed so each request is fully
+   * isolated — no shared mutable state between concurrent requests.
    */
-  private createFreshServer(): Server {
+  private createFreshServer(
+    perRequestToolHandler?: AutotaskToolHandler,
+    perRequestResourceHandler?: AutotaskResourceHandler,
+  ): Server {
     const server = new Server(
       {
         name: this.config.name,
@@ -83,23 +89,56 @@ export class AutotaskMcpServer {
       this.logger.info('MCP Server initialized and ready to serve requests');
     };
 
-    this.setupHandlers(server);
-    this.toolHandler.setServer(server);
+    const toolHandler = perRequestToolHandler ?? this.toolHandler;
+    const resourceHandler = perRequestResourceHandler ?? this.resourceHandler;
+    this.setupHandlers(server, toolHandler, resourceHandler);
+    toolHandler.setServer(server);
 
     return server;
   }
 
   /**
+   * Build per-request service + handlers from gateway credentials.
+   * Returns fully isolated instances that won't be affected by concurrent requests.
+   */
+  private buildPerRequestHandlers(credentials: GatewayCredentials): {
+    toolHandler: AutotaskToolHandler;
+    resourceHandler: AutotaskResourceHandler;
+  } {
+    const autotaskConfig: McpServerConfig['autotask'] = {};
+    if (credentials.username) autotaskConfig.username = credentials.username;
+    if (credentials.secret) autotaskConfig.secret = credentials.secret;
+    if (credentials.integrationCode) autotaskConfig.integrationCode = credentials.integrationCode;
+    if (credentials.apiUrl) autotaskConfig.apiUrl = credentials.apiUrl;
+
+    const requestConfig: McpServerConfig = {
+      name: this.envConfig?.server?.name || 'autotask-mcp',
+      version: this.envConfig?.server?.version || '1.0.0',
+      autotask: autotaskConfig,
+    };
+
+    const service = new AutotaskService(requestConfig, this.logger);
+    return {
+      resourceHandler: new AutotaskResourceHandler(service, this.logger),
+      toolHandler: new AutotaskToolHandler(service, this.logger, this.lazyLoading),
+    };
+  }
+
+  /**
    * Set up all MCP request handlers
    */
-  private setupHandlers(server: Server): void {
+  private setupHandlers(
+    server: Server,
+    toolHandler: AutotaskToolHandler,
+    resourceHandler: AutotaskResourceHandler,
+  ): void {
     this.logger.info('Setting up MCP request handlers...');
 
     // List available resources
     server.setRequestHandler(ListResourcesRequestSchema, async () => {
       try {
         this.logger.debug('Handling list resources request');
-        const resources = await this.resourceHandler.listResources();
+        const resources = await resourceHandler.listResources();
         return { resources };
       } catch (error) {
         this.logger.error('Failed to list resources:', error);
@@ -114,7 +153,7 @@ export class AutotaskMcpServer {
     server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
       try {
         this.logger.debug(`Handling read resource request for: ${request.params.uri}`);
-        const content = await this.resourceHandler.readResource(request.params.uri);
+        const content = await resourceHandler.readResource(request.params.uri);
         return { contents: [content] };
       } catch (error) {
         this.logger.error(`Failed to read resource ${request.params.uri}:`, error);
@@ -129,7 +168,7 @@ export class AutotaskMcpServer {
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       try {
         this.logger.debug('Handling list tools request');
-        const tools = await this.toolHandler.listTools();
+        const tools = await toolHandler.listTools();
         return { tools };
       } catch (error) {
         this.logger.error('Failed to list tools:', error);
@@ -144,7 +183,7 @@ export class AutotaskMcpServer {
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
       try {
         this.logger.debug(`Handling tool call: ${request.params.name}`);
-        const result = await this.toolHandler.callTool(
+        const result = await toolHandler.callTool(
           request.params.name,
           request.params.arguments || {}
         );
@@ -224,19 +263,23 @@ export class AutotaskMcpServer {
           return;
         }
 
-        // In gateway mode, set credentials if provided but don't reject
-        // requests without them. tools/list and initialize don't need
-        // credentials; tools/call will fail with a clear error if
-        // credentials are missing when the API client is created.
+        // In gateway mode, build per-request service + handlers from the
+        // injected credential headers. Each request gets its own isolated
+        // AutotaskService so concurrent requests for different tenants
+        // never interfere with each other.
+        let perRequestToolHandler: AutotaskToolHandler | undefined;
+        let perRequestResourceHandler: AutotaskResourceHandler | undefined;
         if (isGatewayMode) {
           const credentials = parseCredentialsFromHeaders(req.headers as Record<string, string | string[] | undefined>);
           if (credentials.username && credentials.secret && credentials.integrationCode) {
-            this.updateCredentials(credentials);
+            const handlers = this.buildPerRequestHandlers(credentials);
+            perRequestToolHandler = handlers.toolHandler;
+            perRequestResourceHandler = handlers.resourceHandler;
           }
         }
 
         // Stateless: create fresh server + transport for each request
-        const server = this.createFreshServer();
+        const server = this.createFreshServer(perRequestToolHandler, perRequestResourceHandler);
         const transport = new StreamableHTTPServerTransport({
           enableJsonResponse: true,
         });
@@ -276,32 +319,6 @@ export class AutotaskMcpServer {
         resolve();
       });
     });
-  }
-
-  /**
-   * Update the Autotask service with new credentials
-   * Used in gateway mode where credentials come from request headers
-   */
-  private updateCredentials(credentials: GatewayCredentials): void {
-    const autotaskConfig: McpServerConfig['autotask'] = {};
-    if (credentials.username) autotaskConfig.username = credentials.username;
-    if (credentials.secret) autotaskConfig.secret = credentials.secret;
-    if (credentials.integrationCode) autotaskConfig.integrationCode = credentials.integrationCode;
-    if (credentials.apiUrl) autotaskConfig.apiUrl = credentials.apiUrl;
-
-    const newConfig: McpServerConfig = {
-      name: this.envConfig?.server?.name || 'autotask-mcp',
-      version: this.envConfig?.server?.version || '1.0.0',
-      autotask: autotaskConfig,
-    };
-
-    // Reinitialize service with new credentials
-    this.autotaskService = new AutotaskService(newConfig, this.logger);
-    this.resourceHandler = new AutotaskResourceHandler(this.autotaskService, this.logger);
-    this.toolHandler = new AutotaskToolHandler(this.autotaskService, this.logger, this.lazyLoading);
-    this.toolHandler.setServer(this.server);
-
-    this.logger.debug('Updated Autotask credentials from gateway headers');
   }
 
   /**
