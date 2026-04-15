@@ -238,6 +238,24 @@ export class AutotaskMcpServer {
     this.httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
+      // OAuth protected resource metadata — tells MCP clients (Claude.ai, Claude Desktop)
+      // which authorization server to use (Entra ID). Required for the "click Connect" flow.
+      // Must be unauthenticated so clients can discover it before they have a token.
+      if (url.pathname === '/.well-known/oauth-protected-resource') {
+        const tenantId = process.env.ENTRA_TENANT_ID;
+        const clientId = process.env.ENTRA_CLIENT_ID;
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          resource: process.env.MCP_SERVER_URL || `https://${req.headers.host}`,
+          authorization_servers: [
+            `https://login.microsoftonline.com/${tenantId}/v2.0`
+          ],
+          scopes_supported: [`api://${clientId}/use`],
+          bearer_methods_supported: ['header'],
+        }));
+        return;
+      }
+
       // Health endpoint - no auth required
       if (url.pathname === '/health') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
