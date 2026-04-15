@@ -237,7 +237,7 @@ export class AutotaskMcpServer {
     const host = this.envConfig?.transport?.host || '0.0.0.0';
     const isGatewayMode = this.envConfig?.auth?.mode === 'gateway';
 
-    this.httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+    this.httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
       const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
       // ENTRA_AUTH: serve OAuth discovery — no auth required on this path
