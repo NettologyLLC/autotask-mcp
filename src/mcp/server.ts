@@ -22,6 +22,8 @@ import { McpServerConfig } from '../types/mcp.js';
 import { EnvironmentConfig, parseCredentialsFromHeaders, GatewayCredentials } from '../utils/config.js';
 import { AutotaskResourceHandler } from '../handlers/resource.handler.js';
 import { AutotaskToolHandler } from '../handlers/tool.handler.js';
+// ENTRA_AUTH: fork-only import — safe to keep when merging upstream updates
+import { entraAuthEnabled, serveOAuthMetadata, validateBearerToken } from '../utils/entra-auth.js';
 
 export class AutotaskMcpServer {
   private server: Server;
@@ -238,21 +240,9 @@ export class AutotaskMcpServer {
     this.httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
-      // OAuth protected resource metadata — tells MCP clients (Claude.ai, Claude Desktop)
-      // which authorization server to use (Entra ID). Required for the "click Connect" flow.
-      // Must be unauthenticated so clients can discover it before they have a token.
-      if (url.pathname === '/.well-known/oauth-protected-resource') {
-        const tenantId = process.env.ENTRA_TENANT_ID;
-        const clientId = process.env.ENTRA_CLIENT_ID;
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          resource: process.env.MCP_SERVER_URL || `https://${req.headers.host}`,
-          authorization_servers: [
-            `https://login.microsoftonline.com/${tenantId}/v2.0`
-          ],
-          scopes_supported: [`api://${clientId}/use`],
-          bearer_methods_supported: ['header'],
-        }));
+      // ENTRA_AUTH: serve OAuth discovery — no auth required on this path
+      if (url.pathname === '/.well-known/oauth-protected-resource' && entraAuthEnabled) {
+        serveOAuthMetadata(req, res);
         return;
       }
 
@@ -270,6 +260,17 @@ export class AutotaskMcpServer {
 
       // MCP endpoint — stateless: fresh server + transport per request
       if (url.pathname === '/mcp') {
+        // ENTRA_AUTH: validate Bearer token when Entra ID auth is configured
+        const authError = await validateBearerToken(req);
+        if (authError) {
+          res.writeHead(401, {
+            'Content-Type': 'application/json',
+            'WWW-Authenticate': `Bearer resource_metadata="https://${req.headers.host}/.well-known/oauth-protected-resource"`,
+          });
+          res.end(JSON.stringify({ error: 'Unauthorized', detail: authError }));
+          return;
+        }
+
         // Only POST is supported in stateless mode
         if (req.method !== 'POST') {
           res.writeHead(405, { 'Content-Type': 'application/json' });

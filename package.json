@@ -40,6 +40,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3",
     "autotask-node": "github:wyre-technology/autotask-node#v2.2.0",
+    "jose": "^5.0.0",
     "winston": "^3.11.0",
     "zod": "^3.22.4"
   },
